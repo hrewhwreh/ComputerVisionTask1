@@ -136,7 +136,7 @@ namespace ComputerVision1
                 for (int j = 0; j < sourceImage.Height; j++)
                 {
                     intensity = sourceImage.GetPixel(i, j).R;
-                    radius = 5 * deepDistTranform * intensity / 255;
+                    radius = 3 * deepDistTranform * intensity / 255;
                     if (radius != 0)
                     {
                         if (i + 1 + radius > sourceImage.Width - 1 && j + 1 + radius > sourceImage.Height - 1)
@@ -165,7 +165,30 @@ namespace ComputerVision1
                     }
                     else
                     {
-                        resultImage.SetPixel(i, j, sourceImage.GetPixel(i, j));
+                        radius = 3;
+                        if (i + 1 + radius > sourceImage.Width - 1 && j + 1 + radius > sourceImage.Height - 1)
+                        {
+                            meanCoef = imageIntegral.GetSum(Clamp(i + 1 - radius, 0, sourceImage.Width), Clamp(j + 1 - radius, 0, sourceImage.Height),
+                                Clamp(2 * radius + 1, 0, -sourceImage.Width + i + 1 + radius),
+                                Clamp(2 * radius + 1, 0, -sourceImage.Height + j + 1 + radius)) / (radius * radius);
+                        }
+                        else if (i + 1 + radius > sourceImage.Width - 1)
+                        {
+                            meanCoef = imageIntegral.GetSum(Clamp(i + 1 - radius, 0, sourceImage.Width), Clamp(j + 1 - radius, 0, sourceImage.Height),
+                                Clamp(2 * radius + 1, 0, -sourceImage.Width + i + 1 + radius), 2 * radius + 1) / (radius * radius);
+                        }
+                        else if (j + 1 + radius > sourceImage.Height - 1)
+                        {
+                            meanCoef = imageIntegral.GetSum(Clamp(i + 1 - radius, 0, sourceImage.Width), Clamp(j + 1 - radius, 0, sourceImage.Height),
+                                2 * radius + 1, Clamp(2 * radius + 1, 0, -sourceImage.Height + j + 1 + radius)) / (radius * radius);
+                        }
+                        else
+                        {
+                            meanCoef = imageIntegral.GetSum(Clamp(i + 1 - radius, 0, sourceImage.Width), Clamp(j + 1 - radius, 0, sourceImage.Height),
+                                2 * radius + 1, 2 * radius + 1) / (radius * radius);
+                        }
+                        Color resultColor = Color.FromArgb(Clamp((int)meanCoef, 0, 255), Clamp((int)meanCoef, 0, 255), Clamp((int)meanCoef, 0, 255));
+                        resultImage.SetPixel(i, j, resultColor);
                     }
                 }
             }
